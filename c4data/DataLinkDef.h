@@ -31,6 +31,9 @@
 #pragma link C++ class BGOTwinpeaksData+;
 #pragma link C++ class BGOTwinpeaksCalData+;
 
+#pragma link C++ class gPlastTwinpeaksData+;
+#pragma link C++ class gPlastTwinpeaksCalData+;
+
 // frs parameter classes
 #pragma link C++ class TFRSParameter+;
 #pragma link C++ class TMWParameter+;
@@ -66,6 +69,7 @@
 #pragma link C++ class TFatimaVmeConfiguration+;
 #pragma link C++ class TBGOTwinpeaksConfiguration+;
 #pragma link C++ class TbPlastConfiguration+;
+#pragma link C++ class TgPlastConfiguration+;
 #pragma link C++ class TCorrelationsConfiguration+;
 #pragma link C++ class TExperimentConfiguration+;
 #pragma link C++ class TBB7VmeConfiguration+;

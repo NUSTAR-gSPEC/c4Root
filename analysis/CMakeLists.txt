@@ -20,6 +20,7 @@ ${C4ROOT_SOURCE_DIR}/c4data/timemachineData
 ${C4ROOT_SOURCE_DIR}/c4data/baseData
 ${C4ROOT_SOURCE_DIR}/c4data/bb7Data
 ${C4ROOT_SOURCE_DIR}/c4data/fimpData
+${C4ROOT_SOURCE_DIR}/c4data/gplastData
 ${C4ROOT_SOURCE_DIR}/analysis
 ${C4ROOT_SOURCE_DIR}/analysis/frs
 ${C4ROOT_SOURCE_DIR}/analysis/pars
@@ -35,6 +36,7 @@ ${C4ROOT_SOURCE_DIR}/c4source/base
 ${C4ROOT_SOURCE_DIR}/c4source/bplast
 ${C4ROOT_SOURCE_DIR}/c4source/bb7
 ${C4ROOT_SOURCE_DIR}/c4source/fimp
+${C4ROOT_SOURCE_DIR}/c4source/gplast
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -61,6 +63,7 @@ set(SRCS
 ./online/wr/WhiterabbitCorrelationOnline.cxx
 ./online/bb7/BB7OnlineSpectra.cxx
 ./online/fimp/FimpOnlineSpectra.cxx
+./online/gplast/gPlastOnlineSpectra.cxx
 
 # nearline/offline
 ./nearline/bplast/bPlastNearlineSpectra.cxx
@@ -76,6 +79,7 @@ set(SRCS
 ./nearline/fimp/FimpNearlineSpectra.cxx
 ./nearline/bb7/BB7NearlineSpectra.cxx
 ./nearline/lisa/LisaNearlineSpectra.cxx
+./nearline/gplast/gPlastNearlineSpectra.cxx
 
 ## correlations ##
 ./correlations/FrsAidaCorrelations.cxx
