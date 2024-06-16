@@ -102,39 +102,37 @@ class gPlastOnlineSpectra : public FairTask
         TFile* file_gplast_snapshot;
 
         // Histograms
-        std::vector<TH1F*> h1_gplast_slowToT;
-        std::vector<TH1F*> h1_gplast_fastToT;
-        TH1F* h1_gplast_hitpatterns;
-        std::vector<TH1F*> h1_gplast_position_hitpattern;
-        std::vector<TH1F*> h1_gplast_position_hitpattern_spill[2];
-        std::vector<TH1F*> h1_gplast_tamex_card_hitpattern;
+        std::vector<TH1*> h1_gplast_slowToT;
+        std::vector<TH1*> h1_gplast_fastToT;
+        TH1* h1_gplast_hitpatterns;
+        std::vector<TH1*> h1_gplast_position_hitpattern;
+        std::vector<TH1*> h1_gplast_position_hitpattern_spill[2];
+        std::vector<TH1*> h1_gplast_tamex_card_hitpattern;
 
-        std::vector<TH2F*> h2_gplast_fastToT_vs_slowToT;
-        std::vector<TH1F*> h1_gplast_time_spectra_sci41;
-        std::vector<TH2F*> h2_gplast_time_vs_position;
-        std::vector<TH2F*> h2_gplast_time_sci41_vs_position;
-        TH1F* h1_gplast_wr_time_diff;
+        std::vector<TH2*> h2_gplast_fastToT_vs_slowToT;
+        std::vector<TH1*> h1_gplast_time_spectra_sci41;
+        std::vector<TH2*> h2_gplast_time_vs_position;
+        std::vector<TH2*> h2_gplast_time_sci41_vs_position;
+        TH1* h1_gplast_wr_time_diff;
 
-        TH1F* h1_gplast_tof_sci41;
-        TH1F* h1_gplast_tof_sci41_veto;
-        TH1F* h1_gplast_tof_sci42;
-        TH1F* h1_gplast_tof_sci42_veto;
-        TH1F* h1_gplast_tof_sci43;
+        TH1* h1_gplast_tof_sci41;
+        TH1* h1_gplast_tof_sci41_veto;
+        TH1* h1_gplast_tof_sci42;
+        TH1* h1_gplast_tof_sci42_veto;
+        TH1* h1_gplast_tof_sci43;
 
-        TH1F* h1_gplast_slowToT_total;
-        TH1F* h1_gplast_slowToT_total_veto;
-        TH2F* h2_gplast_slowToT_total_sci41;
+        TH1* h1_gplast_slowToT_total;
+        TH1* h1_gplast_slowToT_total_veto;
+        TH2* h2_gplast_slowToT_total_sci41;
         //std::vector<TH1F*> h1_gplast_slowToT_position;
 
         // Detector Multiplicity
-        TH1F* h1_gplast_multiplicity;
-        TH2F* h2_gplast_coincidence_matrix;
-        TH1F* h1_gplast_coinc_time_diff;
-        std::vector<TH1F*> h1_gplast_coinc_time_diff_position;
-        TH1F* h1_gplast_coinc_time_diff_vs_x;
-        TH1F* h1_gplast_coinc_time_diff_vs_y;
-
-        TList *list_of_histograms;
+        TH1* h1_gplast_multiplicity;
+        TH2* h2_gplast_coincidence_matrix;
+        TH1* h1_gplast_coinc_time_diff;
+        std::vector<TH1*> h1_gplast_coinc_time_diff_position;
+        TH1* h1_gplast_coinc_time_diff_vs_x;
+        TH1* h1_gplast_coinc_time_diff_vs_y;
 
         int event_multiplicity;
         int wr_t;

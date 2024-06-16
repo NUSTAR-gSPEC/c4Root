@@ -157,8 +157,10 @@ void gPlastRaw2Cal::PrintDetectorMap()
                       << " TAM_ch: " << entry.first.second;
             auto pos = position_map.at(entry.second);
             std::cout << " DETECTOR_id: " << entry.second
-                      << " POSITION: " << TgPlastConfiguration::PositionToString(pos.first)
-                      << "_" << pos.second << "\n";
+                      << " POSITION: " << TgPlastConfiguration::PositionToString(pos.first);
+            if (pos.first != TgPlastConfiguration::EXTRA)
+                std::cout << "_" << pos.second;
+            std::cout << "\n";
         }
         std::cout << std::endl;
     }

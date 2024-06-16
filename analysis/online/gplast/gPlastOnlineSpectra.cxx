@@ -11,6 +11,7 @@
 #include "gPlastTwinpeaksCalData.h"
 #include "TgPlastConfiguration.h"
 
+#include "AnalysisTools.h"
 #include "c4Logger.h"
 
 #include "TCanvas.h"
@@ -101,86 +102,62 @@ InitStatus gPlastOnlineSpectra::Init()
     h1_gplast_coinc_time_diff_position.resize(nPos);
     h2_gplast_time_sci41_vs_position.resize(nPos);
 
-    list_of_histograms = new TList();
-
     // ======== Slow ToT ======== //
-    dir_gplast_slowToT->cd(); 
     c_gplast_slowToT  = new TCanvas("c_gplast_slowToT","slow ToT gPlast spectra",1200,800);
     c_gplast_slowToT->Divide(5,(nDetectors%5==0) ? (nDetectors/5) : (nDetectors/5 + 1));
     for (int ihist = 1; ihist <= nDetectors; ihist++){
         c_gplast_slowToT->cd(ihist);
-        h1_gplast_slowToT[ihist] = new TH1F(Form("h1_gplast_slowToT_%d",ihist),Form("gPlastic Slow ToT %d",ihist),10000,0,3.5e3);
-        h1_gplast_slowToT[ihist]->GetXaxis()->SetTitle("ToT (ns)");
+        h1_gplast_slowToT[ihist] = MakeTH1(dir_gplast_slowToT, "F", Form("h1_gplast_slowToT_%d",ihist),Form("gPlast Slow ToT %d",ihist), 1e4, 0, 3.5e3, "ToT [ns]", kSpring, kBlue+2);
         h1_gplast_slowToT[ihist]->Draw();
-        list_of_histograms->Add(h1_gplast_slowToT[ihist]);
     }
     c_gplast_slowToT->cd(0);
     dir_gplast_slowToT->Append(c_gplast_slowToT);
 
     // ======== Fast ToT ======== //
-    dir_gplast_fastToT->cd();
     c_gplast_fastToT  = new TCanvas("c_gplast_fastToT","Fast ToT gPlast spectra",1200,800);
     c_gplast_fastToT->Divide(5,(nDetectors%5==0) ? (nDetectors/5) : (nDetectors/5 + 1));
     for (int ihist = 1; ihist <= nDetectors; ihist++)
     {
         c_gplast_fastToT->cd(ihist);
-        h1_gplast_fastToT[ihist] = new TH1F(Form("h1_gplast_fastToT_%d",ihist),Form("gPlast Fast ToT %d",ihist),10000,0,3.5e3);
-        h1_gplast_fastToT[ihist]->GetXaxis()->SetTitle("ToT (ns)");
+        h1_gplast_fastToT[ihist] = MakeTH1(dir_gplast_fastToT, "F", Form("h1_gplast_fastToT_%d",ihist),Form("gPlast Fast ToT %d",ihist),10000,0,3.5e3, "ToT [ns]", kSpring, kBlue+2);
         h1_gplast_fastToT[ihist]->Draw();
-        list_of_histograms->Add(h1_gplast_fastToT[ihist]);
     }
     c_gplast_fastToT->cd(0);
     dir_gplast_fastToT->Append(c_gplast_fastToT);
 
     // ======== Fast vs Slow ToT ======== //
-    dir_gplast_fast_vs_slow->cd();
     c_gplast_fast_v_slow  = new TCanvas("c_gplast_fast_v_slow","fast vs slow ToT gplast spectra",1200,800);
     c_gplast_fast_v_slow->Divide(5,(nDetectors%5==0) ? (nDetectors/5) : (nDetectors/5 + 1));
     for (int ihist = 1; ihist <= nDetectors; ihist++){
         c_gplast_fast_v_slow->cd(ihist);
-        h2_gplast_fastToT_vs_slowToT[ihist] = new TH2F(Form("h1_gplast_fast_v_slow_%d",ihist),Form("gplast fast vs. slow detector %d",ihist),1000,0,3.5e3,1000,0,3.5e3);
-        h2_gplast_fastToT_vs_slowToT[ihist]->GetXaxis()->SetTitle("Slow ToT (ns)");
-        h2_gplast_fastToT_vs_slowToT[ihist]->GetYaxis()->SetTitle("Fast ToT (ns)");
-        h2_gplast_fastToT_vs_slowToT[ihist]->SetOption("COLZ");
-        list_of_histograms->Add(h2_gplast_fastToT_vs_slowToT[ihist]);
+        h2_gplast_fastToT_vs_slowToT[ihist] = MakeTH2(dir_gplast_fast_vs_slow, "F", Form("h2_gplast_fast_v_slow_%d",ihist),Form("gplast fast vs. slow detector %d",ihist),1000,0,3.5e3,1000,0,3.5e3, "Slow ToT [ns]", "Fast ToT [ns]");
+        h2_gplast_fastToT_vs_slowToT[ihist]->Draw();
     }
     c_gplast_fast_v_slow->cd(0);
     dir_gplast_fast_vs_slow->Append(c_gplast_fast_v_slow);
 
     // ======== Total Slow ToT ======== //
-    dir_gplast_slowToT_total->cd();
     c_gplast_total_slowTot  = new TCanvas("c_gplast_total_slowTot","gPlast total slow ToT",1200,800);
     c_gplast_total_slowTot->Divide(2);
     c_gplast_total_slowTot->cd(1);
-    h1_gplast_slowToT_total = new TH1F("h1_gplast_slowToT_total","gPlast total slow ToT - no veto", 10000,0,3.5e3); // hard-coded
-    h1_gplast_slowToT_total->GetXaxis()->SetTitle("Total slow ToT (ns)");
+    h1_gplast_slowToT_total = MakeTH1(dir_gplast_slowToT_total, "F", "h1_gplast_slowToT_total","gPlast total slow ToT - no veto",10000,0,3.5e3, "Total slow ToT [ns]", kSpring+1, kBlue+2); // hard-coded
     h1_gplast_slowToT_total->Draw();
-    list_of_histograms->Add(h1_gplast_slowToT_total);
     c_gplast_total_slowTot->cd(2);
-    h1_gplast_slowToT_total_veto = new TH1F("h1_gplast_slowToT_total_veto","gPlast total slow ToT - vetoed", 10000,0,3.5e3);
-    h1_gplast_slowToT_total_veto->GetXaxis()->SetTitle("Total slow ToT (ns)");
+    h1_gplast_slowToT_total_veto = MakeTH1(dir_gplast_slowToT_total, "F", "h1_gplast_slowToT_total_veto","gPlast total slow ToT - vetoed",10000,0,3.5e3, "Total slow ToT [ns]", kSpring+1, kBlue+2); // hard-coded
     h1_gplast_slowToT_total_veto->Draw();
-    list_of_histograms->Add(h1_gplast_slowToT_total_veto);
     c_gplast_total_slowTot->cd();
     dir_gplast_slowToT_total->Append(c_gplast_total_slowTot);
 
     c_gplast_total_slowTot_sci41 = new TCanvas("c_gplast_total_slowTot_sci41","gPlast total slow ToT vs sci41",1200,800);
-    h2_gplast_slowToT_total_sci41 = new TH2F("h2_gplast_slowToT_total_sci41","gPlast total slow ToT vs sci41", 10000, 0., 3.5e3, 2000, 0, 200);
-    h2_gplast_slowToT_total_sci41->GetXaxis()->SetTitle("Total slow ToT (ns)");
-    h2_gplast_slowToT_total_sci41->GetYaxis()->SetTitle("Time difference with sci41 (ns)");
+    h2_gplast_slowToT_total_sci41 = MakeTH2(dir_gplast_slowToT_total, "F", "h2_gplast_slowToT_total_sci41","gPlast total slow ToT vs sci41", 10000, 0., 3.5e3, 2000, 0, 200, "Total slow ToT [ns]", "Time difference with sci41 [ns]");
     h2_gplast_slowToT_total_sci41->Draw();
-    list_of_histograms->Add(h2_gplast_slowToT_total_sci41);
     c_gplast_total_slowTot_sci41->cd();
     dir_gplast_slowToT_total->Append(c_gplast_total_slowTot_sci41);
 
     // ======== Hit Pattern ======== //
-    dir_gplast_hitpattern->cd();
     c_gplast_hitpatterns = new TCanvas("c_gplast_hitpatterns","gPlast Hit Pattern",1200,800);
-    h1_gplast_hitpatterns = new TH1F("h1_gplast_hitpattern","Detector hit patterns",nDetectors,1,nDetectors+1);
-    h1_gplast_hitpatterns->GetXaxis()->SetTitle("Detector ID");
-    h1_gplast_hitpatterns->GetYaxis()->SetTitle("Counts");
+    h1_gplast_hitpatterns = MakeTH1(dir_gplast_hitpattern, "F", "h1_gplast_hitpattern","Detector hit patterns",nDetectors,1,nDetectors+1, "Detector ID", kRed-3, kBlack);
     h1_gplast_hitpatterns->Draw();
-    list_of_histograms->Add(h1_gplast_hitpatterns);
     c_gplast_hitpatterns->cd();
     dir_gplast_hitpattern->Append(c_gplast_hitpatterns);
 
@@ -189,11 +166,8 @@ InitStatus gPlastOnlineSpectra::Init()
     c_gplast_tamex_card_hitpattern->Divide(5,(nTamexBoards%5==0) ? (nTamexBoards/5) : (nTamexBoards/5 + 1));
     for (int ihist = 0; ihist < nTamexBoards; ihist++){
         c_gplast_tamex_card_hitpattern->cd(ihist+1);
-        h1_gplast_tamex_card_hitpattern[ihist] = new TH1F(Form("h1_gplast_tamex_card_hitpattern_%d",ihist),Form("gPlast Hit Pattern Tamex Card %d",ihist),16,1,17); // hard-coded : number of channels per TAMEX
-        h1_gplast_tamex_card_hitpattern[ihist]->GetXaxis()->SetTitle("Channel");
-        h1_gplast_tamex_card_hitpattern[ihist]->GetYaxis()->SetTitle("Counts");
+        h1_gplast_tamex_card_hitpattern[ihist] = MakeTH1(dir_gplast_hitpattern, "I", Form("h1_gplast_tamex_card_hitpattern_%d",ihist),Form("gPlast Tamex Card Hit Pattern %d",ihist),16,1,17, "Channel", kRed-3, kBlack); // hard-coded : number of channels per TAMEX
         h1_gplast_tamex_card_hitpattern[ihist]->Draw();
-        list_of_histograms->Add(h1_gplast_tamex_card_hitpattern[ihist]);
     }
     c_gplast_tamex_card_hitpattern->cd(0);
     dir_gplast_hitpattern->Append(c_gplast_tamex_card_hitpattern);
@@ -204,11 +178,8 @@ InitStatus gPlastOnlineSpectra::Init()
     for (int ihist = 0; ihist < nPos; ihist++){
         c_gplast_position_hitpattern->cd(ihist+1);
         auto str_pos = TgPlastConfiguration::PositionToString(static_cast<TgPlastConfiguration::Position>(ihist+1)); //EXTRA = 0
-        h1_gplast_position_hitpattern[ihist] = new TH1F(Form("h1_gplast_hitpattern_%s",str_pos.data()),Form("gPlast Hit Pattern %s",str_pos.data()),16,1,17); // hard-coded : number of channels per position
-        h1_gplast_position_hitpattern[ihist]->GetXaxis()->SetTitle("Position");
-        h1_gplast_position_hitpattern[ihist]->GetYaxis()->SetTitle("Counts");
+        h1_gplast_position_hitpattern[ihist] = MakeTH1(dir_gplast_hitpattern, "I", Form("h1_gplast_hitpattern_%s",str_pos.data()),Form("gPlast Hit Pattern %s",str_pos.data()),16,1,17, "Position", kRed-3, kBlack); // hard-coded : number of channels per TAMEX
         h1_gplast_position_hitpattern[ihist]->Draw();
-        list_of_histograms->Add(h1_gplast_position_hitpattern[ihist]);
     }
     c_gplast_position_hitpattern->cd(0);
     dir_gplast_hitpattern->Append(c_gplast_position_hitpattern);
@@ -221,11 +192,8 @@ InitStatus gPlastOnlineSpectra::Init()
         for (int ihist = 0; ihist < nPos; ihist++){
             c_gplast_position_hitpattern_spill[s]->cd(ihist+1);
             auto str_pos = TgPlastConfiguration::PositionToString(static_cast<TgPlastConfiguration::Position>(ihist+1)); //EXTRA = 0
-            h1_gplast_position_hitpattern_spill[s][ihist] = new TH1F(Form("h1_gplast_hitpattern_%s_spill_%s",str_pos.data(),tag[s]),Form("gPlast Hit Pattern %s (spill %s)",str_pos.data(),tag[s]),16,1,17); // hard-coded : number of channels per position
-            h1_gplast_position_hitpattern_spill[s][ihist]->GetXaxis()->SetTitle("Position");
-            h1_gplast_position_hitpattern_spill[s][ihist]->GetYaxis()->SetTitle("Counts");
+            h1_gplast_position_hitpattern_spill[s][ihist] = MakeTH1(dir_gplast_hitpattern, "I", Form("h1_gplast_hitpattern_%s_spill_%s",str_pos.data(),tag[s]),Form("gPlast Hit Pattern %s (spill %s)",str_pos.data(),tag[s]),16,1,17, "Position", kRed-3, kBlack); // hard-coded : number of channels per TAMEX
             h1_gplast_position_hitpattern_spill[s][ihist]->Draw();
-            list_of_histograms->Add(h1_gplast_position_hitpattern_spill[s][ihist]);
         }
         c_gplast_position_hitpattern_spill[s]->cd(0);
         dir_gplast_hitpattern->Append(c_gplast_position_hitpattern_spill[s]);
@@ -233,43 +201,31 @@ InitStatus gPlastOnlineSpectra::Init()
 
     // WR
     c_gplast_wr_time_diff  = new TCanvas("c_gplast_wr_time_diff","gPlast WR time difference",1200,800);
-    h1_gplast_wr_time_diff = new TH1F("h1_gplast_wr_time_diff","gPlast WR time difference",100,-1e2,80e3);
-    h1_gplast_wr_time_diff->GetXaxis()->SetTitle("White Rabbit Event Time Difference (ns)");
+    h1_gplast_wr_time_diff = MakeTH1(dir_gplast_hitpattern, "F", "h1_gplast_wr_time_diff","gPlast WR time difference",1e3,-1e2,5e5, "White Rabbit Event Time Difference [ns]", kViolet, kBlue+2);
     h1_gplast_wr_time_diff->Draw();
-    list_of_histograms->Add(h1_gplast_wr_time_diff);
     c_gplast_wr_time_diff->cd();
     dir_gplast_hitpattern->Append(c_gplast_wr_time_diff);
 
     // ======== Coincidences ======== //
-    dir_gplast_coincidences->cd();
-
     // multiplicity
     c_gplast_multiplicity = new TCanvas("c_gplast_multiplicity","gPlast multiplicity spectrum",1200,800);
-    h1_gplast_multiplicity = new TH1F("h1_gplast_multiplicity","gPlast multiplicity",nDetectors,1,nDetectors+1);
-    h1_gplast_multiplicity->GetXaxis()->SetTitle("Channel Multiplicity");
-    h1_gplast_multiplicity->GetYaxis()->SetTitle("Counts");
+    h1_gplast_multiplicity = MakeTH1(dir_gplast_coincidences, "F", "h1_gplast_multiplicity","gPlast multiplicity",nDetectors,1,nDetectors+1, "Channel Multiplicity", kRed-3, kBlack);
     h1_gplast_multiplicity->Draw();
-    list_of_histograms->Add(h1_gplast_multiplicity);
-    c_gplast_multiplicity->cd();
     c_gplast_multiplicity->SetLogy();
+    c_gplast_multiplicity->cd();
     dir_gplast_coincidences->Append(c_gplast_multiplicity);
 
     // coincidences
     c_gplast_coincidences_matrix = new TCanvas("c_gplast_coincidences_matrix","gPlast matrix of coincidences",1200,800);
-    h2_gplast_coincidence_matrix = new TH2F("h2_gplast_coincidence_matrix","gPlast coincidences",nSignalsPlastic,1,nSignalsPlastic+1,nSignalsPlastic,1,nSignalsPlastic+1);
-    h2_gplast_coincidence_matrix->GetXaxis()->SetTitle("Position (T-B-L-R)");
-    h2_gplast_coincidence_matrix->GetYaxis()->SetTitle("Position (T-B-L-R)");
+    h2_gplast_coincidence_matrix = MakeTH2(dir_gplast_coincidences, "F", "h2_gplast_coincidence_matrix","gPlast coincidences",nSignalsPlastic,1,nSignalsPlastic+1,nSignalsPlastic,1,nSignalsPlastic+1, "Position (T-B-L-R)", "Position (T-B-L-R)");
     h2_gplast_coincidence_matrix->Draw();
-    list_of_histograms->Add(h2_gplast_coincidence_matrix);
     c_gplast_coincidences_matrix->cd();
     dir_gplast_coincidences->Append(c_gplast_coincidences_matrix);
 
     // dt distribution (all hits)
     c_gplast_time_differences = new TCanvas("c_gplast_time_differences","gPlast time differences (coincidences)",1200,800);
-    h1_gplast_coinc_time_diff = new TH1F("h1_gplast_coinc_time_diff","gPlast time difference between hits (mult >= 2)",1000,-500,500);
-    h1_gplast_coinc_time_diff->GetXaxis()->SetTitle("Hit Time Difference (ns)");
+    h1_gplast_coinc_time_diff = MakeTH1(dir_gplast_coincidences, "F", "h1_gplast_coinc_time_diff","gPlast time difference between hits (mult >= 2)",1e3,-500,500, "Hit Time Difference [ns]", kMagenta, kBlue+2);
     h1_gplast_coinc_time_diff->Draw();
-    list_of_histograms->Add(h1_gplast_coinc_time_diff);
     c_gplast_time_differences->cd();
     dir_gplast_coincidences->Append(c_gplast_time_differences);
 
@@ -279,10 +235,8 @@ InitStatus gPlastOnlineSpectra::Init()
     for (int ihist = 0; ihist < nPos; ihist++){
         c_gplast_time_differences_position->cd(ihist+1);
         auto str_pos = TgPlastConfiguration::PositionToString(static_cast<TgPlastConfiguration::Position>(ihist+1)); //EXTRA = 0
-        h1_gplast_coinc_time_diff_position[ihist] = new TH1F(Form("h1_gplast_coinc_time_diff_%s",str_pos.data()),Form("gPlast time difference between hits (mult >= 2) - %s",str_pos.data()),1000,-500,500);
-        h1_gplast_coinc_time_diff_position[ihist]->GetXaxis()->SetTitle("Hit Time Difference (ns)");
+        h1_gplast_coinc_time_diff_position[ihist] = MakeTH1(dir_gplast_coincidences, "F", Form("h1_gplast_coinc_time_diff_%s",str_pos.data()),Form("gPlast time difference between hits (mult >= 2) - %s",str_pos.data()),1e3,-500,500, "Hit Time Difference [ns]", kMagenta, kBlue+2);
         h1_gplast_coinc_time_diff_position[ihist]->Draw();
-        list_of_histograms->Add(h1_gplast_coinc_time_diff_position[ihist]);
     }
     c_gplast_time_differences_position->cd();
     dir_gplast_coincidences->Append(c_gplast_time_differences_position);
@@ -291,29 +245,23 @@ InitStatus gPlastOnlineSpectra::Init()
     c_gplast_time_differences_xy = new TCanvas("c_gplast_time_differences_xy","gPlast time differences (coincidences) vs X/Y",1200,800);
     c_gplast_time_differences_xy->Divide(2);
     c_gplast_time_differences_xy->cd(1);
-    h1_gplast_coinc_time_diff_vs_x = new TH1F("h1_gplast_coinc_time_diff_vs_x","gPlast time difference between hits (mult >= 2) - Left vs Right",1000,-500,500);
-    h1_gplast_coinc_time_diff_vs_x->GetXaxis()->SetTitle("Hit Time Difference Left - Right (ns)");
+    h1_gplast_coinc_time_diff_vs_x = MakeTH1(dir_gplast_coincidences, "F", "h1_gplast_coinc_time_diff_vs_x","gPlast time difference between hits (mult >= 2) - Left vs Right",1e3,-500,500, "Hit Time Difference Left-Right [ns]", kMagenta, kBlue+2);
     h1_gplast_coinc_time_diff_vs_x->Draw();
-    list_of_histograms->Add(h1_gplast_coinc_time_diff_vs_x);
     c_gplast_time_differences_xy->cd(2);
-    h1_gplast_coinc_time_diff_vs_y = new TH1F("h1_gplast_coinc_time_diff_vs_y","gPlast time difference between hits (mult >= 2) - Top vs Bottom",1000,-500,500);
-    h1_gplast_coinc_time_diff_vs_y->GetXaxis()->SetTitle("Hit Time Difference Top - Bottom (ns)");
+    h1_gplast_coinc_time_diff_vs_y = MakeTH1(dir_gplast_coincidences, "F", "h1_gplast_coinc_time_diff_vs_y","gPlast time difference between hits (mult >= 2) - Top vs Bottom",1e3,-500,500, "Hit Time Difference Top-Bottom [ns]", kMagenta, kBlue+2);
     h1_gplast_coinc_time_diff_vs_y->Draw();
-    list_of_histograms->Add(h1_gplast_coinc_time_diff_vs_y);
     c_gplast_time_differences_xy->cd();
     dir_gplast_coincidences->Append(c_gplast_time_differences_xy);
 
     // ======== Time spectra ======== //
-    dir_gplast_time_spectra->cd();
     c_gplast_time_spectra_sci41  = new TCanvas("c_bplast_time_spectra","Fast bPlast time spectra vs sci41",1200,800);
     c_gplast_time_spectra_sci41->Divide(5,(nDetectors%5==0) ? (nDetectors/5) : (nDetectors/5 + 1));
     for (int ihist = 1; ihist <= nDetectors; ihist++)
     {
         c_gplast_time_spectra_sci41->cd(ihist);
-        h1_gplast_time_spectra_sci41[ihist] = new TH1F(Form("h1_gplast_time_spectra_vs_sci41_%d",ihist),Form("gPlast time difference (sci41) %d",ihist),10000,-1000,1000); // hard-coded -> binning should be given in macro !
-        h1_gplast_time_spectra_sci41[ihist]->GetXaxis()->SetTitle("Time difference (ns)");
+        h1_gplast_time_spectra_sci41[ihist] = MakeTH1(dir_gplast_time_spectra, "F", Form("h1_gplast_time_spectra_vs_sci41_%d",ihist),Form("gPlast time difference (sci41) %d",ihist),10000,-1000,1000, "Time difference [ns]", kMagenta, kBlue+2);
+        // hard-coded -> binning should be given in macro !
         h1_gplast_time_spectra_sci41[ihist]->Draw();
-        list_of_histograms->Add(h1_gplast_time_spectra_sci41[ihist]);
     }
     c_gplast_time_spectra_sci41->cd(0);
     dir_gplast_time_spectra->Append(c_gplast_time_spectra_sci41);
@@ -323,11 +271,8 @@ InitStatus gPlastOnlineSpectra::Init()
     for (int ihist = 0; ihist < nPos; ihist++){
         c_gplast_time_vs_position->cd(ihist+1);
         auto str_pos = TgPlastConfiguration::PositionToString(static_cast<TgPlastConfiguration::Position>(ihist+1)); //EXTRA = 0
-        h2_gplast_time_vs_position[ihist] = new TH2F(Form("h2_gplast_time_vs_position_%s",str_pos.data()),Form("gPlast Time vs Position %s",str_pos.data()),6000,-100,500,16,1,17); // hard-coded
-        h2_gplast_time_vs_position[ihist]->GetXaxis()->SetTitle("Time difference with first hit (ns)");
-        h2_gplast_time_vs_position[ihist]->GetYaxis()->SetTitle("Position");
+        h2_gplast_time_vs_position[ihist] = MakeTH2(dir_gplast_time_spectra, "F", Form("h2_gplast_time_vs_position_%s",str_pos.data()),Form("gPlast Time vs Position %s",str_pos.data()),6000,-100,500,16,1,17,"Time difference with first hit [ns]","Position"); // hard-coded
         h2_gplast_time_vs_position[ihist]->Draw();
-        list_of_histograms->Add(h2_gplast_time_vs_position[ihist]);
     }
     c_gplast_time_vs_position->cd(0);
     dir_gplast_time_spectra->Append(c_gplast_time_vs_position);
@@ -337,53 +282,39 @@ InitStatus gPlastOnlineSpectra::Init()
     for (int ihist = 0; ihist < nPos; ihist++){
         c_gplast_time_vs_position_sci41->cd(ihist+1);
         auto str_pos = TgPlastConfiguration::PositionToString(static_cast<TgPlastConfiguration::Position>(ihist+1)); //EXTRA = 0
-        h2_gplast_time_sci41_vs_position[ihist] = new TH2F(Form("h2_gplast_time_sci41_vs_position_%s",str_pos.data()),Form("gPlast Time (sci41) vs Position %s",str_pos.data()),10000,-100,900,16,1,17); // hard-coded
-        h2_gplast_time_sci41_vs_position[ihist]->GetXaxis()->SetTitle("Time difference with sci41 (ns)");
-        h2_gplast_time_sci41_vs_position[ihist]->GetYaxis()->SetTitle("Position");
+        h2_gplast_time_sci41_vs_position[ihist] = MakeTH2(dir_gplast_time_spectra, "F", Form("h2_gplast_time_sci41_vs_position_%s",str_pos.data()),Form("gPlast Time (sci41) vs Position %s",str_pos.data()),10000,-100,900,16,1,17,"Time difference with sci41 [ns]","Position"); // hard-coded
         h2_gplast_time_sci41_vs_position[ihist]->Draw();
-        list_of_histograms->Add(h2_gplast_time_sci41_vs_position[ihist]);
     }
     c_gplast_time_vs_position_sci41->cd(0);
     dir_gplast_time_spectra->Append(c_gplast_time_vs_position_sci41);
 
-
     // ======== Time of Flight vs SCI4x ======== //
-    dir_gplast_ToF_sci->cd();
     c_gplast_tof_sci41 = new TCanvas("c_gplast_tof_sci41","gPlast ToF vs sci41",1200,800);
     c_gplast_tof_sci41->Divide(2);
     c_gplast_tof_sci41->cd(1);
-    h1_gplast_tof_sci41 = new TH1F("h1_gplast_tof_sci41","gPlast ToF vs sci41 - no veto",1000,0,500); //hard-coded
-    h1_gplast_tof_sci41->GetXaxis()->SetTitle("Time of Flight with respect to sci41 (ns)");
+    h1_gplast_tof_sci41 = MakeTH1(dir_gplast_ToF_sci, "F", "h1_gplast_tof_sci41","gPlast ToF vs sci41 - no veto",1000,0,500, "Time of Flight with respect to sci41 [ns]", kMagenta+1, kBlue+2); //hard-coded
+    h1_gplast_tof_sci41->GetXaxis()->SetTitle(" (ns)");
     h1_gplast_tof_sci41->Draw();
-    list_of_histograms->Add(h1_gplast_tof_sci41);
     c_gplast_tof_sci41->cd(2);
-    h1_gplast_tof_sci41_veto = new TH1F("h1_gplast_tof_sci41_veto","gPlast ToF vs sci41 - vetoed",1000,0,500);
-    h1_gplast_tof_sci41_veto->GetXaxis()->SetTitle("Time of Flight with respect to sci41 (ns)");
+    h1_gplast_tof_sci41_veto = MakeTH1(dir_gplast_ToF_sci, "F", "h1_gplast_tof_sci41_veto","gPlast ToF vs sci41 - vetoed",1000,0,500, "Time of Flight with respect to sci41 [ns]", kMagenta+1, kBlue+2); //hard-coded
     h1_gplast_tof_sci41_veto->Draw();
-    list_of_histograms->Add(h1_gplast_tof_sci41_veto);
     c_gplast_tof_sci41->cd();
     dir_gplast_ToF_sci->Append(c_gplast_tof_sci41);
 
     c_gplast_tof_sci42 = new TCanvas("c_gplast_tof_sci42","gPlast ToF vs sci42",1200,800);
     c_gplast_tof_sci42->Divide(2);
     c_gplast_tof_sci42->cd(1);
-    h1_gplast_tof_sci42 = new TH1F("h1_gplast_tof_sci42","gPlast ToF vs sci42 - no veto",1000,0,500); //hard-coded
-    h1_gplast_tof_sci42->GetXaxis()->SetTitle("Time of Flight with respect to sci42 (ns)");
+    h1_gplast_tof_sci42 = MakeTH1(dir_gplast_ToF_sci, "F", "h1_gplast_tof_sci42","gPlast ToF vs sci42 - no veto",1000,0,500, "Time of Flight with respect to sci42 [ns]", kMagenta+1, kBlue+2); //hard-coded
     h1_gplast_tof_sci42->Draw();
-    list_of_histograms->Add(h1_gplast_tof_sci42);
     c_gplast_tof_sci42->cd(2);
-    h1_gplast_tof_sci42_veto = new TH1F("h1_gplast_tof_sci42_veto","gPlast ToF vs sci42 - vetoed",1000,0,500);
-    h1_gplast_tof_sci42_veto->GetXaxis()->SetTitle("Time of Flight with respect to sci42 (ns)");
+    h1_gplast_tof_sci42_veto = MakeTH1(dir_gplast_ToF_sci, "F", "h1_gplast_tof_sci42_veto","gPlast ToF vs sci42 - vetoed",1000,0,500, "Time of Flight with respect to sci42 [ns]", kMagenta+1, kBlue+2); //hard-coded
     h1_gplast_tof_sci42_veto->Draw();
-    list_of_histograms->Add(h1_gplast_tof_sci42_veto);
     c_gplast_tof_sci42->cd();
     dir_gplast_ToF_sci->Append(c_gplast_tof_sci42);
 
     c_gplast_tof_sci43 = new TCanvas("c_gplast_tof_sci43","gPlast ToF vs sci43",1200,800);
-    h1_gplast_tof_sci43 = new TH1F("h1_gplast_tof_sci43","gPlast ToF vs sci43",1000,-500,0); // hard-coded
-    h1_gplast_tof_sci43->GetXaxis()->SetTitle("Time of Flight with respect to sci43 (ns)");
+    h1_gplast_tof_sci43 = MakeTH1(dir_gplast_ToF_sci, "F", "h1_gplast_tof_sci43","gPlast ToF vs sci43",1000,-500,0, "Time of Flight with respect to sci43 [ns]", kMagenta+1, kBlue+2); //hard-coded
     h1_gplast_tof_sci43->Draw();
-    list_of_histograms->Add(h1_gplast_tof_sci43);
     c_gplast_tof_sci43->cd();
     dir_gplast_ToF_sci->Append(c_gplast_tof_sci43);
 
@@ -398,10 +329,15 @@ InitStatus gPlastOnlineSpectra::Init()
 void gPlastOnlineSpectra::Reset_Histo()
 {
     c4LOG(info, "Resetting gPlast histograms.");
-    for(TObject* obj: *list_of_histograms){
-        TH1* hist = dynamic_cast<TH1*>(obj);
-        if (hist)
-            hist->Reset();
+    std::vector<TDirectory*> dirs = {dir_gplast_slowToT, dir_gplast_fastToT, dir_gplast_fast_vs_slow, dir_gplast_hitpattern, dir_gplast_slowToT_total, dir_gplast_coincidences, dir_gplast_time_spectra, dir_gplast_ToF_sci};
+    for (const auto* dir:dirs){
+        for(TObject* obj: *dir->GetList()){
+            if (obj->InheritsFrom("TH1")){
+                TH1* hist = dynamic_cast<TH1*>(obj);
+                if (hist)
+                    hist->Reset();
+            }
+        }
     }
     c4LOG(info, "gPlast histograms reset.");
 }
