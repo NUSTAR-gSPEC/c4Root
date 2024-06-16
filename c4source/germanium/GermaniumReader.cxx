@@ -24,6 +24,7 @@ GermaniumReader::GermaniumReader(EXT_STR_h101_germanium_onion* data, size_t offs
     , fOnline(kFALSE)
     , fArray(new TClonesArray("GermaniumFebexData"))
 {
+    c4LOG(info, Form("Reading Germanium data from %d FEBEX card(s)", NBoards));
 }
 
 GermaniumReader::~GermaniumReader() { 
