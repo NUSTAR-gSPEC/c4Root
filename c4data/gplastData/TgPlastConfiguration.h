@@ -42,7 +42,12 @@ public:
     int TM_Delayed() const;
     int SC41L() const;
     int SC41R() const;
+    int SC42L() const;
+    int SC42R() const;
+    int SC43L() const;
+    int SC43R() const;
     int FRS_ACCEPT() const;
+    int NExtraSignals() const;
     std::set<int> ExtraSignals() const;
 
     static std::string PositionToString(Position);
@@ -75,6 +80,10 @@ private:
     int tm_delayed;
     int sc41l_d;
     int sc41r_d;
+    int sc42l_d;
+    int sc42r_d;
+    int sc43l_d;
+    int sc43r_d;
     int frs_accept;
 
     bool DetectorMap_loaded = 0;
@@ -182,9 +191,34 @@ inline int TgPlastConfiguration::SC41R() const
     return sc41r_d;
 }
 
+inline int TgPlastConfiguration::SC42L() const
+{
+    return sc42l_d;
+}
+
+inline int TgPlastConfiguration::SC42R() const
+{
+    return sc42r_d;
+}
+
+inline int TgPlastConfiguration::SC43L() const
+{
+    return sc43l_d;
+}
+
+inline int TgPlastConfiguration::SC43R() const
+{
+    return sc43r_d;
+}
+
 inline int TgPlastConfiguration::FRS_ACCEPT() const
 {
     return frs_accept;
+}
+
+inline int TgPlastConfiguration::NExtraSignals() const
+{
+    return num_detectors.at(EXTRA);
 }
 
 inline std::set<int> TgPlastConfiguration::ExtraSignals() const

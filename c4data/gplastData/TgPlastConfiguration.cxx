@@ -15,11 +15,11 @@ TgPlastConfiguration* TgPlastConfiguration::instance = nullptr;
 std::string TgPlastConfiguration::filepath = "gplast_alloc.txt";
 
 std::map<TgPlastConfiguration::Position,std::string> TgPlastConfiguration::PosToString = {
-	{TgPlastConfiguration::EXTRA, "EXTRA"},
-	{TgPlastConfiguration::TOP, "TOP"},
-	{TgPlastConfiguration::BOTTOM, "BOTTOM"},
-	{TgPlastConfiguration::LEFT, "LEFT"},
-	{TgPlastConfiguration::RIGHT, "RIGHT"},
+	{TgPlastConfiguration::EXTRA, "Extra"},
+	{TgPlastConfiguration::TOP, "Top"},
+	{TgPlastConfiguration::BOTTOM, "Bottom"},
+	{TgPlastConfiguration::LEFT, "Left"},
+	{TgPlastConfiguration::RIGHT, "Right"},
 	{TgPlastConfiguration::NB_POS, "<ERROR>"},
 };
 
@@ -32,12 +32,15 @@ TgPlastConfiguration::TgPlastConfiguration()
     num_detectors[LEFT] = 0;
     num_detectors[RIGHT] = 0;
     num_detectors[EXTRA] = 0;
+    sc41l_d = sc41r_d = sc42l_d = sc42r_d = sc43l_d = sc43r_d = -1;
+    frs_accept = -1;
+    tm_delayed = tm_undelayed = -1;
     ReadConfiguration();
 }
 
 void TgPlastConfiguration::ReadConfiguration()
 {
-	c4LOG(debug,"Reading gPlast configuration file");
+	c4LOG(info,"Reading gPlast configuration file in " + filepath);
 
     std::ifstream detector_map_file(filepath);
     std::string line;
@@ -95,6 +98,10 @@ void TgPlastConfiguration::ReadConfiguration()
 						else if (signal == "TIMEMACHINED") tm_delayed = detector_id;
 						else if (signal == "SC41L_D") sc41l_d = detector_id;
 						else if (signal == "SC41R_D") sc41r_d = detector_id;
+						else if (signal == "SC42L_D") sc42l_d = detector_id;
+						else if (signal == "SC42R_D") sc42r_d = detector_id;
+						else if (signal == "SC43L_D") sc43l_d = detector_id;
+						else if (signal == "SC43R_D") sc43r_d = detector_id;
 						else if (signal == "FRS_ACCEPT") frs_accept = detector_id;
 						else c4LOG(warn, Form("Unknown auxiliary channel at line %d (detector %d) will be ignored",nline, detector_id));
 					}
@@ -144,6 +151,17 @@ void TgPlastConfiguration::ReadConfiguration()
 
 	c4LOG_IF(error, total_detectors != (int) position_mapping.size(),"Something is not correct with the mapping");
 	// this could happen when the same detector id is set to different positions --> see warnings that have probably been displayed beforehand
+
+	// detector id should not be larger than the number of detectors 
+	for (const auto& det: detector_mapping){
+		c4LOG_IF(error, det.second > total_detectors, Form("Found detector with id=%d, but there are only %d channels in the mapping", det.second, total_detectors));
+	}
+
+	// // Online histograms assume idet in range [1,nbdet]
+	// int nb_true_signals = total_detectors - num_detectors[EXTRA];
+	// for (const auto& det: position_mapping){
+	// 	c4LOG_IF(error, det.first > nb_true_signals || det.first < 1, Form("gPlast signals should be in the first %d channels for online histograms (found id=%d)", nb_true_signals, det.first));
+	// }
 
     DetectorMap_loaded = 1;
     detector_map_file.close();
