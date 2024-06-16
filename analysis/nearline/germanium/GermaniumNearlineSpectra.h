@@ -95,6 +95,13 @@ class GermaniumNearlineSpectra : public FairTask
         TH2* h2_germanium_energy_energy_vetosci41;
         TH2* h2_germanium_energy_energy_sci41_cut;
 
+        TH1* h1_germanium_energy_summed_sci43;
+        TH1* h1_germanium_energy_summed_vetosci43;
+
+        std::vector<TH2*> h2_germanium_energy_vs_tsci41;
+        std::vector<TH2*> h2_germanium_energy_vs_tsci42;
+        std::vector<TH2*> h2_germanium_energy_vs_gplast;
+
         char** detector_labels;
 
         // Folder and files
@@ -105,6 +112,7 @@ class GermaniumNearlineSpectra : public FairTask
         TDirectory* dir_germanium_hitpattern;
         TDirectory* dir_germanium_multiplicity;
         TDirectory* dir_germanium_sci41;
+        TDirectory* dir_germanium_aux;
         TDirectory* dir_germanium_rates;
         std::vector<TDirectory*> dir_germanium_time_differences;
 

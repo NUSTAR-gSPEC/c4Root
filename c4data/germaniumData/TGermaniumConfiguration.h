@@ -52,6 +52,10 @@ class TGermaniumConfiguration
         int TM_Delayed() const;
         int SC41L() const;
         int SC41R() const;
+        int SC42L() const;
+        int SC42R() const;
+        int SC43L() const;
+        int SC43R() const;
         int FRS_accept() const;
         int bPlast_accept() const;
         int bPlast_free() const;
@@ -89,7 +93,10 @@ class TGermaniumConfiguration
         int tm_delayed = -1;
         int sc41l_d = -1;
         int sc41r_d = -1;
-
+        int sc42l_d = -1;
+        int sc42r_d = -1;
+        int sc43l_d = -1;
+        int sc43r_d = -1;
 
         int frs_accept = -1;
         int bplast_accept = -1;
@@ -213,6 +220,26 @@ inline int TGermaniumConfiguration::SC41L() const
 inline int TGermaniumConfiguration::SC41R() const
 {
     return sc41r_d;
+}
+
+inline int TGermaniumConfiguration::SC42L() const
+{
+    return sc42l_d;
+}
+
+inline int TGermaniumConfiguration::SC42R() const
+{
+    return sc42r_d;
+}
+
+inline int TGermaniumConfiguration::SC43L() const
+{
+    return sc43l_d;
+}
+
+inline int TGermaniumConfiguration::SC43R() const
+{
+    return sc43r_d;
 }
 
 

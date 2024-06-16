@@ -66,9 +66,17 @@ void TGermaniumConfiguration::ReadConfiguration()
             else if (signal == "TimeMachineD") tm_delayed = detector_id;
             else if (signal == "SC41L_D") sc41l_d = detector_id;
             else if (signal == "SC41R_D") sc41r_d = detector_id;
+            else if (signal == "SC42L_D") sc42l_d = detector_id;
+            else if (signal == "SC42R_D") sc42r_d = detector_id;
+            else if (signal == "SC43L_D") sc43l_d = detector_id;
+            else if (signal == "SC43R_D") sc43r_d = detector_id;
             else if (signal == "FRS_ACCEPT") frs_accept = detector_id;
             else if (signal == "BPLAST_ACCEPT") bplast_accept = detector_id;
             else if (signal == "BPLAST_FREE") bplast_free = detector_id;
+            else if (signal == "GPLAST_ACCEPT") bplast_accept = detector_id;
+            else if (signal == "GPLAST_FREE") bplast_free = detector_id;
+            // gplast/bplast are similar detectors, used in different setup
+            // --> no need to differenciate them in the Germanium reader
 
             extra_signals.insert(detector_id);
         }

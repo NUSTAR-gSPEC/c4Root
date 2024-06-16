@@ -77,6 +77,7 @@ InitStatus GermaniumNearlineSpectra::Init()
     dir_germanium_hitpattern = dir_germanium->mkdir("Hit Pattern");
     dir_germanium_multiplicity = dir_germanium->mkdir("Multiplicity");
     dir_germanium_sci41 = dir_germanium->mkdir("SCI41");
+    dir_germanium_aux = dir_germanium->mkdir("Other aux.");
     dir_germanium_rates = dir_germanium->mkdir("Rates");
 
     // energy spectra:
@@ -98,10 +99,29 @@ InitStatus GermaniumNearlineSpectra::Init()
     // Spectra relating to SCI41:
     h1_germanium_energy_summed_vetosci41 = MakeTH1(dir_germanium_sci41, "F", "h1_germanium_energy_summed_vetosci41","Calibrated Germanium spectra summed all dets veto sci 41",fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Energy [keV]", kOrange-3, kBlue+2);
     h2_germanium_energy_summed_vs_tsci41 = MakeTH2(dir_germanium_sci41, "F", "h2_germanium_energy_summed_vs_tsci41","Calibrated Germanium spectra summed all energyies vs t(det) - t(sci41)",1000,-500,5000,fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Time difference [ns]", "Energy [keV]");
+
+    h2_germanium_energy_vs_tsci41.resize(number_of_detectors_to_plot);
+    for (int ihist = 0; ihist < number_of_detectors_to_plot; ihist++){
+        h2_germanium_energy_vs_tsci41[ihist] = MakeTH2(dir_germanium_sci41, "F", Form("h2_germanium_energy_%d_%d_vs_tsci41",crystals_to_plot.at(ihist).first,crystals_to_plot.at(ihist).second),Form("DEGAS spectrum detector %d crystal %c energy vs t(det) - t(sci41)",crystals_to_plot.at(ihist).first,(char)(crystals_to_plot.at(ihist).second+65)),500,-500,2000,fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Time difference [ns]", "Energy [keV]");
+    }
+
     h1_germanium_energy_summed_vs_tsci41_cut = MakeTH1(dir_germanium_sci41, "F", "h1_germanium_energy_summed_vs_tsci41_cut","Calibrated Germanium spectra summed all energyies, t(det) - t(sci41) > 200 ns",fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Energy [keV]", kOrange-3, kBlue+2);
     h2_germanium_energy_energy_vetosci41 = MakeTH2(dir_germanium_sci41, "F", "h2_germanium_energy_energy_vetosci41","Calibrated Germanium spectra summed all energies, t(det) - t(sci41) > 200 ns",fenergy_nbins,fenergy_bin_low,fenergy_bin_high,fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Energy [keV]", "Energy [keV]");
     h2_germanium_energy_energy_sci41_cut = MakeTH2(dir_germanium_sci41, "F", "h2_germanium_energy_energy_sci41_cut","Calibrated Germanium spectra summed all energies, t(det) - t(sci41) > 200 ns",fenergy_nbins,fenergy_bin_low,fenergy_bin_high,fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Energy [keV]", "Energy [keV]");
 
+    // Spectra relating to other auxiliary signals:
+    h2_germanium_energy_vs_tsci42.resize(number_of_detectors_to_plot);
+    for (int ihist = 0; ihist < number_of_detectors_to_plot; ihist++){
+        h2_germanium_energy_vs_tsci42[ihist] = MakeTH2(dir_germanium_aux, "F", Form("h2_germanium_energy_%d_%d_vs_tsci42",crystals_to_plot.at(ihist).first,crystals_to_plot.at(ihist).second),Form("DEGAS spectrum detector %d crystal %c energy vs t(det) - t(sci42)",crystals_to_plot.at(ihist).first,(char)(crystals_to_plot.at(ihist).second+65)),500,-500,2000,fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Time difference [ns]", "Energy [keV]");
+    }
+
+    h2_germanium_energy_vs_gplast.resize(number_of_detectors_to_plot);
+    for (int ihist = 0; ihist < number_of_detectors_to_plot; ihist++){
+        h2_germanium_energy_vs_gplast[ihist] = MakeTH2(dir_germanium_aux, "F", Form("h2_germanium_energy_%d_%d_vs_gplast",crystals_to_plot.at(ihist).first,crystals_to_plot.at(ihist).second),Form("DEGAS spectrum detector %d crystal %c energy vs t(det) - t(gplast)",crystals_to_plot.at(ihist).first,(char)(crystals_to_plot.at(ihist).second+65)),500,-500,2000,fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Time difference [ns]", "Energy [keV]");
+    }
+
+    h1_germanium_energy_summed_sci43 = MakeTH1(dir_germanium_aux, "F", "h1_germanium_energy_summed_sci43","Calibrated Germanium spectra summed all dets, with sci 43",fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Energy [keV]", kOrange-3, kBlue+2);
+    h1_germanium_energy_summed_vetosci43 = MakeTH1(dir_germanium_aux, "F", "h1_germanium_energy_summed_vetosci43","Calibrated Germanium spectra summed all dets veto sci 43",fenergy_nbins,fenergy_bin_low,fenergy_bin_high, "Energy [keV]", kOrange-3, kBlue+2);
 
     // time spectra:
     h1_germanium_time.resize(number_of_detectors_to_plot);
@@ -171,6 +191,7 @@ void GermaniumNearlineSpectra::Exec(Option_t* option){
 
         
         bool sci41_seen = false; // off-spill raw spectra
+        bool sci43_seen = false; // veto (sci43 is placed after implanter)
 
         for (Int_t ihit = 0; ihit < nHits; ihit++){ // core loop for basic detector spectra and simple conincidences.
     
@@ -185,6 +206,7 @@ void GermaniumNearlineSpectra::Exec(Option_t* option){
             if (!(germanium_configuration->IsDetectorAuxilliary(detector_id1))) event_multiplicity ++; // count only physical events in germaniums
 
             if (detector_id1 == germanium_configuration->SC41L() || detector_id1 == germanium_configuration->SC41R()) sci41_seen = true;
+            if (detector_id1 == germanium_configuration->SC43L() || detector_id1 == germanium_configuration->SC43R()) sci43_seen = true;
             
             int crystal_index1 = std::distance(crystals_to_plot.begin(), std::find(crystals_to_plot.begin(),crystals_to_plot.end(),std::pair<int,int>(detector_id1,crystal_id1)));
 
@@ -267,24 +289,39 @@ void GermaniumNearlineSpectra::Exec(Option_t* option){
         }
 
 
-        // Spectra with respect to SCI41:
-        if (nHits >= 2 && sci41_seen)
-        {
-            for (int ihit1 = 0; ihit1 < nHits; ihit1 ++)
-            {
+        // Spectra with respect to auxiliary signals:
+        if (nHits >= 2 && sci41_seen){
+            // *in principle*, if sci41 is seen it means that we are on spill
+            // then, the other auxiliary signals (sci42,sci43, gplast) are relevant
+            for (int ihit1 = 0; ihit1 < nHits; ihit1 ++){
+                bool is_sci41 = false;
+                bool is_sci42 = false;
+                bool is_bplast = false; // bplast / gplast (gSPEC)
 
-                GermaniumCalData* hit_sci41 = (GermaniumCalData*)fHitGe->At(ihit1);
-                if (!hit_sci41) continue;
-                int detector_id_sci41 = hit_sci41->Get_detector_id();
-                int crystal_id_sci41 = hit_sci41->Get_crystal_id();
-                double energy_sci41 = hit_sci41->Get_channel_energy();
-                double time_sci41 = hit_sci41->Get_channel_trigger_time();
+                GermaniumCalData* hit = (GermaniumCalData*)fHitGe->At(ihit1);
+                if (!hit) continue;
+                int detector_id_aux = hit->Get_detector_id();
+                double time_aux = hit->Get_channel_trigger_time();
 
-                // after this test we have the sci41 hit.
-                if (detector_id_sci41 != germanium_configuration->SC41L() && detector_id_sci41 != germanium_configuration->SC41R()) continue;
+                if (!germanium_configuration->IsDetectorAuxilliary(detector_id_aux)){
+                    double energy = hit->Get_channel_energy();
+                    if (sci43_seen)
+                        h1_germanium_energy_summed_sci43->Fill(energy);
+                    else
+                        h1_germanium_energy_summed_vetosci43->Fill(energy);
+                }
 
-                for (int ihit2 = 0; ihit2 < nHits; ihit2 ++)
-                {
+                if (detector_id_aux == germanium_configuration->SC41L() && detector_id_aux == germanium_configuration->SC41R()){
+                    is_sci41 = true;
+                }
+                else if(detector_id_aux == germanium_configuration->SC42L() && detector_id_aux == germanium_configuration->SC42R()){
+                    is_sci42 = true;
+                }
+                else if(detector_id_aux == germanium_configuration->bPlast_accept()){
+                    is_bplast = true;
+                }
+
+                for (int ihit2 = 0; ihit2 < nHits; ihit2 ++){
                     GermaniumCalData* hit2 = (GermaniumCalData*)fHitGe->At(ihit2);
                     if (!hit2) continue;
                     int detector_id1 = hit2->Get_detector_id();
@@ -294,30 +331,41 @@ void GermaniumNearlineSpectra::Exec(Option_t* option){
 
                     if (germanium_configuration->IsDetectorAuxilliary(detector_id1)) continue;
 
-                    double timediff = time1 - time_sci41 - germanium_configuration->GetTimeshiftCoefficient(detector_id1,crystal_id1);
-                    
-                    h2_germanium_energy_summed_vs_tsci41->Fill(timediff ,energy1);
+                    double timediff = time1 - time_aux - germanium_configuration->GetTimeshiftCoefficient(detector_id1,crystal_id1);
 
-                    if ((TMath::Abs(time1-time_sci41 > 0)) || (germanium_configuration->IsInsidePromptFlashCut(timediff ,energy1)==false) ) h1_germanium_energy_summed_vs_tsci41_cut->Fill(energy1);
+                    int crystal_index1 = std::distance(crystals_to_plot.begin(), std::find(crystals_to_plot.begin(),crystals_to_plot.end(),std::pair<int,int>(detector_id1,crystal_id1)));
 
-                    for (int ihit3 = ihit2+1; ihit3 < nHits; ihit3 ++)
-                    {
-                        GermaniumCalData* hit3 = (GermaniumCalData*)fHitGe->At(ihit3);
-                        if (!hit3) continue;
-                        int detector_id2 = hit3->Get_detector_id();
-                        int crystal_id2 = hit3->Get_crystal_id();
-                        double energy2 = hit3->Get_channel_energy();
-                        double time2 = hit3->Get_channel_trigger_time();
+                    if (is_sci41){
+                        h2_germanium_energy_summed_vs_tsci41->Fill(timediff ,energy1);
 
-                        if (germanium_configuration->IsDetectorAuxilliary(detector_id2)) continue;
+                        h2_germanium_energy_vs_tsci41[crystal_index1]->Fill(timediff ,energy1);
 
-                        if (TMath::Abs(time1 - time2) < 500) h2_germanium_energy_energy_sci41_cut->Fill(energy1,energy2);
+                        if ((TMath::Abs(time1-time_aux > 0)) || (germanium_configuration->IsInsidePromptFlashCut(timediff ,energy1)==false) ) h1_germanium_energy_summed_vs_tsci41_cut->Fill(energy1);
+
+                        for (int ihit3 = ihit2+1; ihit3 < nHits; ihit3 ++){
+                            GermaniumCalData* hit3 = (GermaniumCalData*)fHitGe->At(ihit3);
+                            if (!hit3) continue;
+                            int detector_id2 = hit3->Get_detector_id();
+                            int crystal_id2 = hit3->Get_crystal_id();
+                            double energy2 = hit3->Get_channel_energy();
+                            double time2 = hit3->Get_channel_trigger_time();
+
+                            if (germanium_configuration->IsDetectorAuxilliary(detector_id2)) continue;
+
+                            if (TMath::Abs(time1 - time2) < 500) h2_germanium_energy_energy_sci41_cut->Fill(energy1,energy2);
+                        }
+                    }
+                    else if (is_sci42){
+                        h2_germanium_energy_vs_tsci42[crystal_index1]->Fill(timediff ,energy1);
+                    }
+                    else if (is_bplast){
+                        h2_germanium_energy_vs_gplast[crystal_index1]->Fill(timediff ,energy1);
                     }
                 }
-                break;
             }
         }
-    
+
+
         h1_germanium_multiplicity->Fill(event_multiplicity);
 
         int64_t wr_dt = (germanium_wr - saved_germanium_wr) / 1e9; // conv to s
